@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register of Weights and Measures</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between; /* Space between sections */
+        }
+        .form-section, .comment-section {
+            flex: 1; /* Allow sections to grow equally */
+            margin-right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input, select {
+            margin: 5px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+            text-align: left;
+        }
+        .comment-section {
+            max-width: 300px; /* Limit width of comment section */
+        }
+        .comment-section textarea {
+            width: 100%;
+            height: 200px; /* Fixed height for comment area */
+            margin-top: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-section">
+        <h1>Register of Weights and Measures to be Maintained by Repairer</h1>
+
+        <!-- Editable fields for Proprietor, LIC No, etc. -->
+        <div>
+            <label>Prop. Name:</label>
+            <input type="text" id="propName" placeholder="Enter Proprietor Name">
+            
+            <label>LIC No:</label>
+            <input type="text" id="licNo" placeholder="Enter LIC No">
+
+            <label>Financial Year:</label>
+            <input type="text" id="financialYear" placeholder="Enter Financial Year">
+
+            <label>Mobile No:</label>
+            <input type="text" id="mobileNo" placeholder="Enter Mobile No">
+
+            <label>Month:</label>
+            <input type="text" id="month" placeholder="Enter Month">
+
+            <label>Ward No:</label>
+            <input type="text" id="wardNo" placeholder="Enter Ward No">
+        </div>
+
+        <!-- Table for entries -->
+        <h2>Entries</h2>
+        <table id="entriesTable">
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Date</th>
+                    <th>Customer Name</th>
+                    <th>Village</th>
+                    <th>Weighing Instrument (Make)</th>
+                    <th>Model</th>
+                    <th>Serial No</th>
+                    <th>Max Cap</th>
+                    <th>Min Cap</th>
+                    <th>Receipt No</th>
+                    <th>Servicing Fee</th>
+                    <th>Govt. Fees</th>
+                    <th>Action</th> <!-- Added Action Column -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="Enter Date"></td>
+                    <td><input type="text" placeholder="Enter Customer Name"></td>
+                    <td><input type="text" placeholder="Enter Village"></td>
+                    <td><input type="text" placeholder="Enter Instrument Make"></td>
+                    <td><input type="text" placeholder="Enter Model"></td>
+                    <td><input type="text" placeholder="Enter Serial No"></td>
+                    <td><input type="text" placeholder="Enter Max Cap"></td>
+                    <td><input type="text" placeholder="Enter Min Cap"></td>
+                    <td><input type="text" placeholder="Enter Receipt No"></td>
+                    <td><input type="text" placeholder="Enter Servicing Fee"></td>
+                    <td><input type="text" placeholder="Enter Govt. Fees"></td>
+                    <td><button onclick="deleteRow(this)">Delete</button></td> <!-- Delete Button -->
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="addRow()">Add More Rows</button>
+
+        <!-- Save, Export, Print buttons -->
+        <button onclick="saveHeadingData()">Save Project</button>
+        <button onclick="downloadPDF()">Download as PDF</button>
+        <button onclick="printTable()">Print</button>
+    </div>
+
+    <!-- Comment Section -->
+    <div class="comment-section">
+        <h2>Comments</h2>
+        <textarea id="comments" placeholder="Enter your comments here..."></textarea>
+        <button onclick="saveComments()">Save Comments</button>
+    </div>
+
+    <script>
+        // Function to add more rows to the table
+        function addRow() {
+            const table = document.getElementById("entriesTable").getElementsByTagName("tbody")[0];
+            const newRow = table.insertRow();
+            for (let i = 0; i < 12; i++) {
+                let cell = newRow.insertCell(i);
+                if (i === 0) {
+                    cell.innerText = table.rows.length;  // Auto-increment the serial number
+                } else {
+                    let input = document.createElement("input");
+                    input.type = "text";
+                    input.placeholder = "Enter data";
+                    cell.appendChild(input);
+                }
+            }
+            // Adding Delete button in the last cell
+            let deleteCell = newRow.insertCell(12);
+            deleteCell.innerHTML = '<button onclick="deleteRow(this)">Delete</button>';
+        }
+
+        // Function to delete a row
+        function deleteRow(button) {
+            const row = button.parentNode.parentNode; // Get the row of the button clicked
+            row.parentNode.removeChild(row); // Remove the row from the table
+        }
+
+        // Function to save project data (for demonstration purposes)
+        function saveHeadingData() {
+            // Collect and save heading data (you can implement saving to a database or local storage here)
+            alert("Project data saved!");
+        }
+
+        // Function to download the table and heading as PDF
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add heading fields to the PDF
+            doc.text(`Prop. Name: ${document.getElementById('propName').value}`, 10, 10);
+            doc.text(`LIC No: ${document.getElementById('licNo').value}`, 10, 20);
+            doc.text(`Financial Year: ${document.getElementById('financialYear').value}`, 10, 30);
+            doc.text(`Mobile No: ${document.getElementById('mobileNo').value}`, 10, 40);
+            doc.text(`Month: ${document.getElementById('month').value}`, 10, 50);
+            doc.text(`Ward No: ${document.getElementById('wardNo').value}`, 10, 60);
+
+            // Add table entries to the PDF
+            doc.autoTable({
+                head: [['Sr. No', 'Date', 'Customer Name', 'Village', 'Weighing Instrument', 'Model', 'Serial No', 'Max Cap', 'Min Cap', 'Receipt No', 'Servicing Fee', 'Govt. Fees']],
+                body: getTableData(),
+                startY: 70
+            });
+
+            // Add comments to PDF
+            doc.text("Comments:", 10, doc.autoTable.previous.finalY + 10);
+            doc.text(document.getElementById('comments').value, 10, doc.autoTable.previous.finalY + 20);
+
+            // Save the PDF
+            doc.save('register_of_weights_measures.pdf');
+        }
+
+        // Function to get table data for PDF export
+        function getTableData() {
+            const tableRows = document.querySelectorAll("#entriesTable tbody tr");
+            let tableData = [];
+
+            tableRows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll("td").forEach((td, index) => {
+                    if (index > 0) {
+                        let input = td.querySelector("input");
+                        if (input) {
+                            rowData.push(input.value || "");
+                        }
+                    } else {
+                        rowData.push(td.innerText); // For the serial number
+                    }
+                });
+                tableData.push(rowData);
+            });
+
+            return tableData;
+        }
+
+        // Function to print the table
+        function printTable() {
+            const printContent = document.body.innerHTML;
+            const win = window.open('', '', 'height=600,width=800');
+            win.document.write('<html><head><title>Print</title>');
+            win.document.write('</head><body>');
+            win.document.write(printContent);
+            win.document.write('</body></html>');
+            win.document.close(); 
+            win.print();
+        }
+
+        // Function to save comments
+        function saveComments() {
+            const comments = document.getElementById('comments').value;
+            alert(`Comments saved: ${comments}`);
+            // Here, you can implement saving comments to a database or local storage
+        }
+    </script>
+
+</body>
+</html>
